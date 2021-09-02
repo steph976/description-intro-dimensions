@@ -2,6 +2,7 @@
 var tplMgr = {
 	fRootPath : "ide:root",
 	fCbkPath : "des:.cbkClosed",
+	fMediaPath : "des:object.resVideo|object.resAudio",
 	fWaiMnuPath : "ide:accessibility",
 	fWaiBtnPath : "des:.waiBtn",
 	fResumeBtnPath : "ide:tools/des:.module/des:a",
@@ -29,8 +30,6 @@ var tplMgr = {
 		if ("scTooltipMgr" in window) {
 				scTooltipMgr.addShowListener(this.sTtShow);
 				scTooltipMgr.addHideListener(this.sTtHide);
-				if (scTooltipMgr.addMakeListener) scTooltipMgr.addMakeListener(this.sTtMake);
-				else scTooltipMgr.addShowListener(this.sTtMake);
 		}
 
 		// Set SubWin callback functions.
@@ -39,11 +38,6 @@ var tplMgr = {
 			scDynUiMgr.subWindow.addCloseListener(this.sSubWinClose);
 			scDynUiMgr.collBlk.addOpenListener(this.sCollBlkOpen);
 			scDynUiMgr.collBlk.addCloseListener(this.sCollBlkClose);
-		}
-
-		// Set MediaMgr callback functions.
-		if ("scMediaMgr" in window) {
-			scMediaMgr.addListener("mediaError", this.sMediaError);
 		}
 
 		// Close collapsable blocks that are closed by default.
@@ -147,7 +141,7 @@ var tplMgr = {
 		}
 		pMedia.parentNode.removeChild(pMedia);
 	},
-	/** isNoAjax */
+	/** setNoAjax */
 	isNoAjax : function(){
 		return this.fNoAjax;
 	},
@@ -267,13 +261,6 @@ var tplMgr = {
 		}
 		return false;
 	},
-	/** Tooltip lib make callback : this = function */
-	sTtMake: function(pNode) {
-		if (!pNode.fMedias) {
-			pNode.fMedias = scPaLib.findNodes("des:.mediaPlayer", sc$(pNode.ttId));
-			for (var i=0; i<pNode.fMedias.length; i++) scMediaMgr.initMedia(pNode.fMedias[i]);
-		}
-	},
 	/** Tooltip lib show callback : this = function */
 	sTtShow: function(pNode) {
 		if (!pNode.fOpt.FOCUS && !pNode.onblur) pNode.onblur = function(){scTooltipMgr.hideTooltip(true);};
@@ -281,9 +268,6 @@ var tplMgr = {
 	/** Tooltip lib hide callback : this = function */
 	sTtHide: function(pNode) {
 		if (pNode) pNode.focus();
-		for (var i=0; i<pNode.fMedias.length; i++){
-			scMediaMgr.xStop(pNode.fMedias[i].media);
-		}
 	},
 	/** SubWin lib load callback : this = function */
 	sSubWinOpen: function(pFra) {
@@ -305,12 +289,6 @@ var tplMgr = {
 	/** Callback function. */
 	sCollBlkClose: function(pCo, pTitle) {
 		if (pTitle) pTitle.title = tplMgr.fStrings[5].replace("%s", (pTitle.innerText ? pTitle.innerText: pTitle.textContent));
-	},
-	/** Callback function. */
-	sMediaError: function(pType) {
-		if(pType && pType.error=="subsRequestNetwork"){
-			tplMgr.setNoAjax();
-		}
 	}
 }
 
